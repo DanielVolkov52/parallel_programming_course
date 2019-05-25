@@ -18,7 +18,8 @@ class Integration {
     double ax, bx;
     double * result;
     int n;
-public: Integration( double _ax, double _bx, double* res, int _n) {
+public:
+Integration(double _ax, double _bx, double* res, int _n) {
     ax = _ax;
     bx = _bx;
     result = res;
@@ -26,7 +27,6 @@ public: Integration( double _ax, double _bx, double* res, int _n) {
 }
         void operator()(const tbb::blocked_range<int>& r) const {
             int begin = r.begin(), end = r.end();
-            
             double step = (bx - ax) / n;
             for (int i = begin; i != end; i++)  *result += oneDimensionalIntegral(ax + i * step,
                 MainFunction1, TopFunction(ax + i * step), LowerFunction(ax + i * step), n);
@@ -60,7 +60,7 @@ double oneDimensionalIntegral(double x, double func(double, double), double b, d
     return result;
 }
 
-void TBBIntegration(double ax, double bx, double* result, int size,  int grainSize) { 
+void TBBIntegration(double ax, double bx, double* result, int size,  int grainSize) {
     tbb::parallel_for(tbb::blocked_range<int>(0, size, grainSize), Integration(ax, bx, result, size));
 }
 
@@ -69,9 +69,7 @@ int main(int argc, char *argv[]) {
     if (argc == 1) {
         numThreads = 12;
         n = 10000;
-    }
-    else
-    {
+    } else {
         numThreads = atoi(argv[1]);
         n = atoi(argv[2]);
     }
