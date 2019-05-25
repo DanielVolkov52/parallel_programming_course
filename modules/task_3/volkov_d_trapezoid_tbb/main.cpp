@@ -15,19 +15,14 @@ double LowerFunction(double x) {
 }
 double oneDimensionalIntegral(double x, double func(double, double), double a, double b, int n);
 class Integration {
-    
-    
     double ax, bx;
     double * result;
     int n;
-    
-public: Integration( double _ax, double _bx, double* res, int _n)
-{
+public: Integration( double _ax, double _bx, double* res, int _n) {
     ax = _ax;
     bx = _bx;
     result = res;
     n = _n;
-
 }
         void operator()(const tbb::blocked_range<int>& r) const {
             int begin = r.begin(), end = r.end();
@@ -52,6 +47,7 @@ double Trapezoid(double func(double, double), double ax, double bx,
     result *= (step / 2);
     return result;
 }
+
 double oneDimensionalIntegral(double x, double func(double, double), double b, double a, int n) {
     double step = (b - a) / n;
     double result = 0;
@@ -64,9 +60,7 @@ double oneDimensionalIntegral(double x, double func(double, double), double b, d
     return result;
 }
 
-
-void TBBIntegration(double ax, double bx, double* result, int size,  int grainSize)
-{ 
+void TBBIntegration(double ax, double bx, double* result, int size,  int grainSize) { 
     tbb::parallel_for(tbb::blocked_range<int>(0, size, grainSize), Integration(ax, bx, result, size));
 }
 
@@ -85,17 +79,16 @@ int main(int argc, char *argv[]) {
     tbb::task_scheduler_init init;
     init.initialize(4);
     tbb::tick_count start = tbb::tick_count::now();
-
     std::cout << "Serial result: " << Trapezoid(MainFunction1, 0, 10, TopFunction,
         LowerFunction, n);
-    std::cout << "\nSerial Time: " << (SerialTime = ((tbb::tick_count::now()) - start).seconds());
-    
-    
+    std::cout << "\nSerial Time: " <<
+    (SerialTime = ((tbb::tick_count::now()) - start).seconds());
     double *result;
     start = tbb::tick_count::now();
     TBBIntegration(0, 10, result, 10000, 100);
     std::cout << "\nParallel result: " << *result;
-    std::cout << "\nParallel Time: " << (ParallelTime = ((tbb::tick_count::now()) - start).seconds());
+    std::cout << "\nParallel Time: " <<
+    (ParallelTime = ((tbb::tick_count::now()) - start).seconds());
     std::cout << "\nBoost: " << (SerialTime / ParallelTime) << "\nEfficiency: ";
     std::cout << (SerialTime / ParallelTime) / numThreads;
 }
