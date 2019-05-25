@@ -18,7 +18,8 @@ class Integration {
     double * result;
     int n;
 
-    public:
+
+ public:
     Integration(double _ax, double _bx, double* res, int _n) {
         ax = _ax;
         bx = _bx;
