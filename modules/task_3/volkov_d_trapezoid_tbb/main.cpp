@@ -1,8 +1,7 @@
 // Copyright 2019 Volkov Daniil
-
-#include<iostream>
-#include<iomanip>
 #include<tbb/tbb.h>
+#include<iostream>
+
 
 double MainFunction1(double x, double y) {
     return exp(-x * x - y * y);
@@ -18,13 +17,14 @@ class Integration {
     double ax, bx;
     double * result;
     int n;
-public:
-Integration(double _ax, double _bx, double* res, int _n) {
-    ax = _ax;
-    bx = _bx;
-    result = res;
-    n = _n;
-}
+
+    public:
+    Integration(double _ax, double _bx, double* res, int _n) {
+        ax = _ax;
+        bx = _bx;
+        result = res;
+        n = _n;
+    }
         void operator()(const tbb::blocked_range<int>& r) const {
             int begin = r.begin(), end = r.end();
             double step = (bx - ax) / n;
@@ -65,6 +65,8 @@ void TBBIntegration(double ax, double bx, double* result, int size,  int grainSi
 }
 
 int main(int argc, char *argv[]) {
+    double *result;
+    double  SerialTime, ParallelTime;
     int numThreads, n;
     if (argc == 1) {
         numThreads = 12;
@@ -73,7 +75,6 @@ int main(int argc, char *argv[]) {
         numThreads = atoi(argv[1]);
         n = atoi(argv[2]);
     }
-    double  SerialTime, ParallelTime;
     tbb::task_scheduler_init init;
     init.initialize(4);
     tbb::tick_count start = tbb::tick_count::now();
@@ -81,7 +82,6 @@ int main(int argc, char *argv[]) {
         LowerFunction, n);
     std::cout << "\nSerial Time: " <<
     (SerialTime = ((tbb::tick_count::now()) - start).seconds());
-    double *result;
     start = tbb::tick_count::now();
     TBBIntegration(0, 10, result, 10000, 100);
     std::cout << "\nParallel result: " << *result;
