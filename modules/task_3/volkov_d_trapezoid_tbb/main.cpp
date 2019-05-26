@@ -13,7 +13,7 @@ double LowerFunction(double x) {
     return -exp(-x * x);
 }
 double oneDimensionalIntegral(double x, double func(double, double), double a, double b, int n);
-class Integration {
+class Integration : public tbb::task {
     double ax, bx;
     double * result;
     int n;
