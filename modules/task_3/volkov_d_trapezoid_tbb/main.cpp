@@ -5,13 +5,13 @@
 
 
 double MainFunction1(double x, double y) {
-    return exp(-x * x - y * y);
+    return -x * x - y * y;
 }
 double TopFunction(double x) {
-    return exp(-x * x);
+    return -x * x;
 }
 double LowerFunction(double x) {
-    return -exp(-x * x);
+    return -x * x;
 }
 double oneDimensionalIntegral(double x, double func(double, double), double a, double b, int n);
 double TBBIntegration(
@@ -66,7 +66,6 @@ double b, double a, int n) {
 
 
 int main(int argc, char *argv[]) {
-    double *result;
     double  SerialTime, ParallelTime;
     int numThreads, n;
     numThreads = 12;
