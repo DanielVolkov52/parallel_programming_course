@@ -1,5 +1,5 @@
 /// Copyright 2019 Volkov Daniil
-#include"tbb/tbb.h"
+#include<tbb/tbb.h>
 #include<iostream>
 #include<functional>
 
@@ -22,7 +22,7 @@ double TBBIntegration(
         [&](const tbb::blocked_range<size_t>& range, double result) -> double {
         size_t begin = range.begin(), end = range.end();
         for (size_t i = begin; i < end; i++) {
-            result += oneDimensionalIntegral(ax + i * step, MainFunction1, 
+            result += oneDimensionalIntegral(ax + i * step, MainFunction1,
             TopFunction(ax + i * step), LowerFunction(ax + i * step), n);
         }
         return result;
@@ -50,7 +50,7 @@ double Trapezoid(double func(double, double), double ax, double bx,
     return result;
 }
 
-double oneDimensionalIntegral(double x, double func(double, double), 
+double oneDimensionalIntegral(double x, double func(double, double),
 double b, double a, int n) {
     double step = (b - a) / n;
     double result = 0;
