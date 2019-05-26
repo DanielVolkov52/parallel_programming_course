@@ -1,5 +1,5 @@
-// Copyright 2019 Volkov Daniil
-#include<tbb/tbb.h>
+/// Copyright 2019 Volkov Daniil
+#include"tbb/tbb.h"
 #include<iostream>
 
 
@@ -13,26 +13,24 @@ double LowerFunction(double x) {
     return -exp(-x * x);
 }
 double oneDimensionalIntegral(double x, double func(double, double), double a, double b, int n);
-class Integration : public tbb::task {
-    double ax, bx;
-    double * result;
-    int n;
-
-
- public:
-    Integration(double _ax, double _bx, double* res, int _n) {
-        ax = _ax;
-        bx = _bx;
-        result = res;
-        n = _n;
-    }
-        void operator()(const tbb::blocked_range<int>& r) const {
-            int begin = r.begin(), end = r.end();
-            double step = (bx - ax) / n;
-            for (int i = begin; i != end; i++)  *result += oneDimensionalIntegral(ax + i * step,
-                MainFunction1, TopFunction(ax + i * step), LowerFunction(ax + i * step), n);
+double TBBIntegration(
+    double ax, double bx, int n) {
+    double step = (bx - ax) / n;
+    double res = tbb::parallel_reduce(
+        tbb::blocked_range<size_t>(1, n-1, 100), 0,
+        [&](const tbb::blocked_range<size_t>& range, double result) -> double {
+        size_t begin = range.begin(), end = range.end();
+        for (size_t i = begin; i < end; i++) {
+            result += oneDimensionalIntegral(ax + i * step, MainFunction1, TopFunction(ax + i * step), LowerFunction(ax + i * step), n);
         }
-};
+        return result;
+    }, std::plus<double>());
+    res *= 2;
+    res += oneDimensionalIntegral(ax, MainFunction1, TopFunction(ax), LowerFunction(ax), n) +
+        oneDimensionalIntegral(bx, MainFunction1, TopFunction(bx), LowerFunction(bx), n);
+    res *= (step / 2);
+    return res;
+}
 
 double Trapezoid(double func(double, double), double ax, double bx,
     double TopLimit(double), double LowerLimit(double), int n) {
@@ -61,33 +59,24 @@ double oneDimensionalIntegral(double x, double func(double, double), double b, d
     return result;
 }
 
-void TBBIntegration(double ax, double bx, double* result, int size,  int grainSize) {
-    tbb::parallel_for(tbb::blocked_range<int>(0, size, grainSize), Integration(ax, bx, result, size));
-}
+
 
 int main(int argc, char *argv[]) {
     double *result;
     double  SerialTime, ParallelTime;
     int numThreads, n;
-    if (argc == 1) {
-        numThreads = 12;
-        n = 10000;
-    } else {
-        numThreads = atoi(argv[1]);
-        n = atoi(argv[2]);
-    }
-    tbb::task_scheduler_init init;
-    init.initialize(4);
+    numThreads = 12;
+    n = 10000;
+
     tbb::tick_count start = tbb::tick_count::now();
     std::cout << "Serial result: " << Trapezoid(MainFunction1, 0, 10, TopFunction,
         LowerFunction, n);
     std::cout << "\nSerial Time: " <<
-    (SerialTime = ((tbb::tick_count::now()) - start).seconds());
+        (SerialTime = ((tbb::tick_count::now()) - start).seconds());
     start = tbb::tick_count::now();
-    TBBIntegration(0, 10, result, 10000, 100);
-    std::cout << "\nParallel result: " << *result;
+    std::cout << "\nParallel result: " << TBBIntegration(0, 10, 10000);
     std::cout << "\nParallel Time: " <<
-    (ParallelTime = ((tbb::tick_count::now()) - start).seconds());
+        (ParallelTime = ((tbb::tick_count::now()) - start).seconds());
     std::cout << "\nBoost: " << (SerialTime / ParallelTime) << "\nEfficiency: ";
     std::cout << (SerialTime / ParallelTime) / numThreads;
 }
