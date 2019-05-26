@@ -18,7 +18,7 @@ double TBBIntegration(
     double ax, double bx, int n) {
     double step = (bx - ax) / n;
     double res = tbb::parallel_reduce(
-        tbb::blocked_range<size_t>(1, n-1, 100), 0,
+        tbb::blocked_range<size_t>(1, n-1, 100), 0.0,
         [&](const tbb::blocked_range<size_t>& range, double result) -> double {
         size_t begin = range.begin(), end = range.end();
         for (size_t i = begin; i < end; i++) {
