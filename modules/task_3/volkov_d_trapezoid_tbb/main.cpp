@@ -1,6 +1,7 @@
 /// Copyright 2019 Volkov Daniil
 #include"tbb/tbb.h"
 #include<iostream>
+#include<functional>
 
 
 double MainFunction1(double x, double y) {
@@ -21,7 +22,8 @@ double TBBIntegration(
         [&](const tbb::blocked_range<size_t>& range, double result) -> double {
         size_t begin = range.begin(), end = range.end();
         for (size_t i = begin; i < end; i++) {
-            result += oneDimensionalIntegral(ax + i * step, MainFunction1, TopFunction(ax + i * step), LowerFunction(ax + i * step), n);
+            result += oneDimensionalIntegral(ax + i * step, MainFunction1, 
+            TopFunction(ax + i * step), LowerFunction(ax + i * step), n);
         }
         return result;
     }, std::plus<double>());
@@ -38,7 +40,8 @@ double Trapezoid(double func(double, double), double ax, double bx,
     double result = 0;
 
     for (int i = 1; i < n - 1; i++) {
-        result += oneDimensionalIntegral(ax + i * step, func, TopLimit(ax + i * step), LowerLimit(ax + i * step), n);
+        result += oneDimensionalIntegral(ax + i * step, func,
+         TopLimit(ax + i * step), LowerLimit(ax + i * step), n);
     }
     result *= 2;
     result += oneDimensionalIntegral(ax, func, TopLimit(ax), LowerLimit(ax), n) +
@@ -47,7 +50,8 @@ double Trapezoid(double func(double, double), double ax, double bx,
     return result;
 }
 
-double oneDimensionalIntegral(double x, double func(double, double), double b, double a, int n) {
+double oneDimensionalIntegral(double x, double func(double, double), 
+double b, double a, int n) {
     double step = (b - a) / n;
     double result = 0;
     for (int i = 1; i <= n - 1; i++) {
